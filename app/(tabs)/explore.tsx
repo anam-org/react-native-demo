@@ -26,17 +26,10 @@ export default function Explore() {
 
   // Your API key or session token would go here
   const API_KEY = "your-api-key-here";
-  const SESSION_TOKEN = undefined; // Optional: you can use this instead of API key
 
   // Example persona configuration - adjust based on your Anam AI setup
   const PERSONA_CONFIG = {
     personaId: "your-persona-id", // If using a saved persona
-    // Or for custom persona:
-    // name: 'Assistant',
-    // appearance: {
-    //   voiceId: 'en-US-neural2-J',
-    //   avatarId: 'default-avatar'
-    // }
   };
 
   const handleSendMessage = () => {
