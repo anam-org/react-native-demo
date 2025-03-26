@@ -1,109 +1,222 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import { useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { AnamPlayerComponent } from "../../components/AnamPlayer";
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+export default function Explore() {
+  const [message, setMessage] = useState("");
+  const [chatMessages, setChatMessages] = useState<
+    Array<{
+      id: string;
+      text: string;
+      sender: "user" | "ai";
+      timestamp: Date;
+    }>
+  >([]);
+  const [showVideo, setShowVideo] = useState(true);
 
-export default function TabTwoScreen() {
+  // Your API key or session token would go here
+  const API_KEY = "your-api-key-here";
+  const SESSION_TOKEN = undefined; // Optional: you can use this instead of API key
+
+  // Example persona configuration - adjust based on your Anam AI setup
+  const PERSONA_CONFIG = {
+    personaId: "your-persona-id", // If using a saved persona
+    // Or for custom persona:
+    // name: 'Assistant',
+    // appearance: {
+    //   voiceId: 'en-US-neural2-J',
+    //   avatarId: 'default-avatar'
+    // }
+  };
+
+  const handleSendMessage = () => {
+    if (!message.trim()) return;
+
+    // Add message to chat
+    const newMessage = {
+      id: Date.now().toString(),
+      text: message,
+      sender: "user" as const,
+      timestamp: new Date(),
+    };
+
+    setChatMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    // In a real app, you would send this to your AnamClient instance
+    // anamClient.talk(message);
+
+    // Clear input
+    setMessage("");
+  };
+
+  const toggleVideoDisplay = () => {
+    setShowVideo(!showVideo);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Anam AI Demo</Text>
+        <TouchableOpacity
+          style={styles.toggleButton}
+          onPress={toggleVideoDisplay}
+        >
+          <Text style={styles.toggleButtonText}>
+            {showVideo ? "Hide Video" : "Show Video"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.content}>
+        {showVideo && (
+          <View style={styles.videoContainer}>
+            <AnamPlayerComponent
+              apiKey={API_KEY}
+              personaConfig={PERSONA_CONFIG}
+              style={styles.video}
+              onConnected={() => console.log("Connected!")}
+              onDisconnected={() => console.log("Disconnected")}
+              onError={(error) => console.error("Error:", error)}
+            />
+          </View>
+        )}
+
+        <View style={styles.chatContainer}>
+          <ScrollView style={styles.messagesContainer}>
+            {chatMessages.map((msg) => (
+              <View
+                key={msg.id}
+                style={[
+                  styles.messageBubble,
+                  msg.sender === "user"
+                    ? styles.userMessageBubble
+                    : styles.aiMessageBubble,
+                ]}
+              >
+                <Text style={styles.messageTextStyle}>{msg.text}</Text>
+              </View>
+            ))}
+          </ScrollView>
+
+          <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.inputContainerStyle}
+          >
+            <TextInput
+              style={styles.inputStyle}
+              value={message}
+              onChangeText={setMessage}
+              placeholder="Type a message..."
+              placeholderTextColor="#999"
+              multiline
+            />
+            <TouchableOpacity
+              style={styles.sendButtonStyle}
+              onPress={handleSendMessage}
+              disabled={!message.trim()}
+            >
+              <Text style={styles.sendButtonTextStyle}>Send</Text>
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: "#2196F3",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "white",
+  },
+  toggleButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    padding: 8,
+    borderRadius: 4,
+  },
+  toggleButtonText: {
+    color: "white",
+    fontWeight: "500",
+  },
+  content: {
+    flex: 1,
+    flexDirection: "column",
+  },
+  videoContainer: {
+    height: 300,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  video: {
+    flex: 1,
+  },
+  chatContainer: {
+    flex: 1,
+    flexDirection: "column",
+  },
+  messagesContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  messageBubble: {
+    padding: 12,
+    borderRadius: 16,
+    marginBottom: 8,
+  },
+  userMessageBubble: {
+    backgroundColor: "#E0F2F1",
+    alignSelf: "flex-end",
+  },
+  aiMessageBubble: {
+    backgroundColor: "#BBDEFB",
+    alignSelf: "flex-start",
+  },
+  messageTextStyle: {
+    fontSize: 16,
+    color: "#333",
+  },
+  inputContainerStyle: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#ddd",
+  },
+  inputStyle: {
+    flex: 1,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  sendButtonStyle: {
+    backgroundColor: "#2196F3",
+    padding: 12,
+    borderRadius: 8,
+  },
+  sendButtonTextStyle: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
