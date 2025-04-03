@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "MyAwesomeApp",
-    "slug": "MyAwesomeApp",
+    "name": "AnamReactNativeExample",
+    "slug": "AnamReactNativeExample",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,7 +15,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.aoanam.AnamReactNativeExample"
     },
     "web": {
       "bundler": "metro",
@@ -32,10 +33,19 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "@config-plugins/react-native-webrtc"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "7fbc44e9-fcbd-42da-b387-9d7f009d2aa7"
+      }
     }
   }
 }

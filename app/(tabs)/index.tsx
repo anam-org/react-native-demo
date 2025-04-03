@@ -1,74 +1,173 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { useState } from "react";
+import {
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { AnamPlayerComponent } from "../../components/AnamPlayer";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+export default function Home() {
+  const [showVideo, setShowVideo] = useState(true);
 
-export default function HomeScreen() {
+  // API key here for testing, in production make a request to your server which will then return a session token
+  // See: https://docs.anam.ai/guides/get-started/production for more information
+  const API_KEY = "YOUR_API_KEY";
+
+  /**
+   * In a production use case you would define your persona on the server side when fetching a session token.
+   * The session token includes a reference to your persona config, so no details such as system prompt need to shared with the client.
+   *
+   * Options for defining your persona
+   *
+   * 1. You can keep a constant persona ID. You can create your persona in the Anam Lab and then use the ID here.
+   *
+   * 2. You can define your persona programmatically.
+   *
+   * personaConfig: {
+   *   name: "Cara",
+   *   avatarId: "30fa96d0-26c4-4e55-94a0-517025942e18", // The avatar ID for Cara
+   *   voiceId: "6bfbe25a-979d-40f3-a92b-5394170af54b", // The voice ID for Cara
+   *   brainType: "ANAM_LLAMA_v3_3_70B_V1",
+   *   systemPrompt: "[STYLE] Reply in natural speech without formatting. Add pauses using '...' and very occasionally a disfluency. [PERSONALITY] You are Cara, a helpful assistant.",
+   * },
+   *
+   * 3. You can pass user specific information to your server when fetching a session token which can build the persona config dynamically.
+   */
+  const PERSONA_CONFIG = {
+    name: "Cara",
+    avatarId: "30fa96d0-26c4-4e55-94a0-517025942e18", // The avatar ID for Cara
+    voiceId: "6bfbe25a-979d-40f3-a92b-5394170af54b", // The voice ID for Cara
+    brainType: "ANAM_LLAMA_v3_3_70B_V1",
+    systemPrompt:
+      "[STYLE] Reply in natural speech without formatting. Add pauses using '...' and very occasionally a disfluency. The user expects you to start the interaction. [PERSONALITY] You are Cara, a helpful assistant.",
+  };
+
+  const toggleVideoDisplay = () => {
+    setShowVideo(!showVideo);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Anam AI Demo</Text>
+        <TouchableOpacity
+          style={styles.toggleButton}
+          onPress={toggleVideoDisplay}
+        >
+          <Text style={styles.toggleButtonText}>
+            {showVideo ? "Hide Video" : "Show Video"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.content}>
+        {showVideo && (
+          <View style={styles.videoContainer}>
+            <AnamPlayerComponent
+              apiKey={API_KEY}
+              personaConfig={PERSONA_CONFIG}
+              style={styles.video}
+              onConnected={() => console.log("Connected!")}
+              onDisconnected={() => {
+                console.log("Disconnected!");
+                setShowVideo(false);
+              }}
+              onError={(error) => console.error("Error:", error)}
+            />
+          </View>
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#f5f5f5",
   },
-  stepContainer: {
-    gap: 8,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: 40,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+    backgroundColor: "#2196F3",
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "white",
+  },
+  toggleButton: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    padding: 8,
+    borderRadius: 4,
+  },
+  toggleButtonText: {
+    color: "white",
+    fontWeight: "500",
+  },
+  content: {
+    flex: 1,
+    flexDirection: "column",
+  },
+  videoContainer: {
+    height: 300,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  video: {
+    flex: 1,
+  },
+  chatContainer: {
+    flex: 1,
+    flexDirection: "column",
+  },
+  messagesContainer: {
+    flex: 1,
+    padding: 16,
+  },
+  messageBubble: {
+    padding: 12,
+    borderRadius: 16,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  userMessageBubble: {
+    backgroundColor: "#E0F2F1",
+    alignSelf: "flex-end",
+  },
+  aiMessageBubble: {
+    backgroundColor: "#BBDEFB",
+    alignSelf: "flex-start",
+  },
+  messageTextStyle: {
+    fontSize: 16,
+    color: "#333",
+  },
+  inputContainerStyle: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: "#ddd",
+  },
+  inputStyle: {
+    flex: 1,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    marginRight: 8,
+  },
+  sendButtonStyle: {
+    backgroundColor: "#2196F3",
+    padding: 12,
+    borderRadius: 8,
+  },
+  sendButtonTextStyle: {
+    color: "white",
+    fontWeight: "bold",
   },
 });
